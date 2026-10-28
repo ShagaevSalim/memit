@@ -1,0 +1,31 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root" android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true" android:background="@color/cream">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="20dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:gravity="center_vertical">
+            <ImageView android:layout_width="44dp" android:layout_height="44dp" android:src="@drawable/ic_memit" android:importantForAccessibility="no" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:layout_marginStart="10dp" android:text="@string/brand" android:textColor="@color/ink" android:textSize="32sp" android:fontFamily="sans-serif-black" />
+            <Button android:id="@+id/settings" style="@style/MemitButton" android:layout_width="wrap_content" android:layout_height="52dp" android:background="@drawable/button_secondary" android:text="@string/settings" android:textSize="13sp" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/hero" android:textSize="32sp" android:lineSpacingExtra="0dp" android:fontFamily="sans-serif-black" android:textColor="@color/ink" />
+        <TextView android:id="@+id/recipient" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:layout_marginBottom="16dp" android:textSize="15sp" android:textColor="@color/purple" android:fontFamily="sans-serif-medium" />
+        <dev.memit.app.RoundedCameraLayout android:id="@+id/camera_frame" android:layout_width="match_parent" android:layout_height="340dp" android:background="@drawable/camera_background">
+            <androidx.camera.view.PreviewView android:id="@+id/camera" android:layout_width="match_parent" android:layout_height="match_parent" />
+            <ImageView android:id="@+id/review" android:layout_width="match_parent" android:layout_height="match_parent" android:contentDescription="@string/photo_description" android:scaleType="fitCenter" android:visibility="gone" />
+            <LinearLayout android:id="@+id/camera_gate" android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" android:gravity="center" android:padding="24dp" android:background="#242035">
+                <TextView android:id="@+id/camera_message" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="@string/camera_intro" android:gravity="center" android:textSize="20sp" android:textColor="#FFFFFF" android:fontFamily="sans-serif-medium" />
+                <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="@string/permission_explanation" android:gravity="center" android:textSize="14sp" android:textColor="#D1CBE1" />
+                <Button android:id="@+id/permission" style="@style/MemitButton" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="@string/allow_camera" />
+            </LinearLayout>
+            <Button android:id="@+id/switch_camera" style="@style/MemitButton" android:layout_width="wrap_content" android:layout_height="48dp" android:layout_gravity="bottom|end" android:layout_margin="12dp" android:background="@drawable/button_secondary" android:text="@string/switch_camera" android:textSize="12sp" android:visibility="gone" />
+        </dev.memit.app.RoundedCameraLayout>
+        <TextView android:id="@+id/status" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="52dp" android:gravity="center_vertical" android:layout_marginTop="8dp" android:text="@string/ready_hint" android:textSize="14sp" android:textColor="@color/muted" android:accessibilityLiveRegion="polite" />
+        <ProgressBar android:id="@+id/progress" style="?android:attr/progressBarStyleHorizontal" android:layout_width="match_parent" android:layout_height="4dp" android:indeterminate="true" android:visibility="gone" />
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp">
+            <Button android:id="@+id/retake" style="@style/MemitButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="56dp" android:layout_marginEnd="8dp" android:background="@drawable/button_secondary" android:text="@string/retake" android:visibility="gone" />
+            <Button android:id="@+id/action" style="@style/MemitButton" android:layout_width="0dp" android:layout_weight="1" android:layout_height="56dp" android:text="@string/capture" android:enabled="false" />
+        </LinearLayout>
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="20dp" android:text="@string/flow_hint" android:gravity="center" android:textSize="12sp" android:textColor="@color/muted" />
+        <Button android:id="@+id/add_widget" style="@style/MemitButton" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:background="@drawable/button_secondary" android:text="@string/add_widget" android:textSize="14sp" />
+    </LinearLayout>
+</ScrollView>

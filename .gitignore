@@ -9,3 +9,8 @@ backend/fonts/*
 *.log
 *.tmp
 .tools/
+.tools-setup.ps1
+android/.gradle/
+android/**/build/
+android/local.properties
+android/.kotlin/

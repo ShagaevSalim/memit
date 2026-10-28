@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Memit</string>
+    <string name="widget_name">Memit · входящий мем</string>
+    <string name="widget_description">Последний мем от друга. Нажмите «Обновить», чтобы получить новый.</string>
+    <string name="settings">Настройки</string>
+    <string name="photo_description">Ваш снимок перед отправкой</string>
+    <string name="meme_description">Последний входящий мем целиком</string>
+    <string name="brand">memit</string>
+    <string name="hero">Твой кадр.\nЕго новый мем.</string>
+    <string name="camera_intro">Здесь начинается мем</string>
+    <string name="permission_explanation">Разреши камеру, чтобы поделиться моментом с другом.</string>
+    <string name="allow_camera">Разрешить камеру</string>
+    <string name="switch_camera">Сменить камеру</string>
+    <string name="ready_hint">Лови момент. Мем мы сделаем сами.</string>
+    <string name="retake">Переснять</string>
+    <string name="capture">Сделать снимок</string>
+    <string name="flow_hint">Фото → немного магии → улыбка друга</string>
+    <string name="add_widget">Добавить виджет с мемами</string>
+    <string name="open_app">Открыть Memit</string>
+    <string name="widget_open">Фото ↗</string>
+    <string name="widget_setup_prompt">Откройте Memit\nи выберите пользователя</string>
+    <string name="widget_incoming">Входящие мемы</string>
+    <string name="widget_refresh_description">Обновить входящий мем</string>
+    <string name="widget_refresh">Обновить</string>
+    <string name="recipient_direction">%1$s → %2$s   ·   отправить другу</string>
+    <string name="checking_server">Проверяем %1$s…</string>
+</resources>
