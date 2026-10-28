@@ -1,0 +1,11 @@
+backend/target/
+backend/data/
+backend/uploads/
+backend/fonts/*
+!backend/fonts/.gitkeep
+.idea/
+*.iml
+.vscode/
+*.log
+*.tmp
+.tools/
