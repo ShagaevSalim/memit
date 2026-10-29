@@ -1,0 +1,12 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@drawable/widget_background" android:orientation="vertical" android:padding="12dp">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="32dp" android:gravity="center_vertical">
+        <TextView android:id="@+id/widget_title" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="@string/brand" android:textColor="@color/purple" android:textSize="16sp" android:fontFamily="sans-serif-black" android:gravity="center_vertical" android:maxLines="1" android:ellipsize="end" />
+        <TextView android:id="@+id/widget_open" android:layout_width="48dp" android:layout_height="match_parent" android:gravity="center" android:text="@string/widget_open" android:textSize="12sp" android:textColor="@color/purple" android:contentDescription="@string/open_app" />
+    </LinearLayout>
+    <FrameLayout android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:layout_marginTop="6dp">
+        <ImageView android:id="@+id/widget_image" android:layout_width="match_parent" android:layout_height="match_parent" android:scaleType="fitCenter" android:contentDescription="@string/meme_description" android:visibility="gone" />
+        <TextView android:id="@+id/widget_empty" android:layout_width="match_parent" android:layout_height="match_parent" android:gravity="center" android:text="@string/widget_setup_prompt" android:textSize="16sp" android:textColor="@color/ink" />
+    </FrameLayout>
+    <TextView android:id="@+id/widget_status" android:layout_width="match_parent" android:layout_height="wrap_content" android:minHeight="20dp" android:layout_marginTop="4dp" android:text="@string/widget_incoming" android:textSize="11sp" android:textColor="@color/muted" android:maxLines="2" android:ellipsize="end" android:accessibilityLiveRegion="polite" />
+    <TextView android:id="@+id/widget_refresh" android:layout_width="match_parent" android:layout_height="40dp" android:gravity="center" android:background="@drawable/button_primary" android:text="@string/widget_refresh" android:textColor="@color/ink" android:textSize="14sp" android:fontFamily="sans-serif-medium" android:contentDescription="@string/widget_refresh_description" />
+</LinearLayout>

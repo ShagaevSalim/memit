@@ -11,9 +11,6 @@ import android.widget.RemoteViews;
 import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-import androidx.work.ExistingWorkPolicy;
 import dev.memit.app.ApiClient;
 import dev.memit.app.AppSettings;
 import dev.memit.app.MainActivity;
@@ -34,67 +31,20 @@ public final class WidgetRefreshWorker extends Worker {
             RemoteViews loading = views(app, AppSettings.load(app), null, "Получаем новый мем…", "Загрузка…", true);
             AppWidgetManager.getInstance(app).updateAppWidget(ids, loading);
         }
-        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(WidgetRefreshWorker.class).build();
-        WorkManager.getInstance(app).enqueueUniqueWork(WORK_NAME,
-                settingsChanged ? ExistingWorkPolicy.REPLACE : ExistingWorkPolicy.KEEP, request);
+        android.app.job.JobScheduler scheduler = app.getSystemService(android.app.job.JobScheduler.class);
+        if (!settingsChanged && scheduler.getPendingJob(WidgetRefreshService.JOB_ID) != null) return;
+        if (settingsChanged) scheduler.cancel(WidgetRefreshService.JOB_ID);
+        scheduler.schedule(new android.app.job.JobInfo.Builder(WidgetRefreshService.JOB_ID,
+                new ComponentName(app, WidgetRefreshService.class)).setMinimumLatency(0).build());
     }
 
     @NonNull @Override public Result doWork() {
-        Context context = getApplicationContext();
-        AppSettings settings = AppSettings.load(context);
-        if (!settings.configured) {
-            render(settings, null, "Выберите пользователя и сервер", "Откройте Memit\nи настройте подключение", false);
-            return Result.success();
-        }
-        WidgetCache cache = null;
-        Bitmap cached = null;
-        boolean requestingLatest = true;
-        try {
-            cache = new WidgetCache(context, settings);
-            cached = cache.bitmap();
-            if (!active(settings)) return Result.success();
-            render(settings, cached, "Получаем новый мем…", "Загрузка…", true);
-            ApiClient api = new ApiClient(settings);
-            ApiClient.Photo photo = api.latest();
-            requestingLatest = false;
-            if (!active(settings)) return Result.success();
-            if (cache.photoId() != photo.id || cached == null) {
-                byte[] bytes = api.download(photo);
-                if (!active(settings)) return Result.success();
-                cache.save(photo.id, bytes);
-                if (cached != null) cached.recycle();
-                cached = cache.bitmap();
-                if (cached == null) throw new java.io.IOException("Не удалось показать мем");
-            }
-            if (active(settings)) render(settings, cached, "Для «" + settings.userName() + "» · мем #" + photo.id, "Пока нет мемов", false);
-            return Result.success();
-        } catch (Exception e) {
-            if (!active(settings)) return Result.success();
-            if (requestingLatest && e instanceof ApiClient.ApiException && ((ApiClient.ApiException) e).status == 404) {
-                if (cache != null) cache.clear();
-                render(settings, null, "Попросите друга отправить фото", "Пока нет мемов", false);
-            } else {
-                render(settings, cached, cached != null ? "Не удалось обновить · сохранённый мем" : "Нет связи с сервером · повторите", "Не удалось загрузить мем", false);
-            }
-            // A manual retry is deliberate: do not leave the refresh spinner waiting for backoff.
-            return Result.success();
-        } finally { if (cached != null && !cached.isRecycled()) cached.recycle(); }
-    }
-
-    private boolean active(AppSettings settings) { return !isStopped() && settings.isCurrent(getApplicationContext()); }
-
-    private void render(AppSettings settings, Bitmap image, String status, String empty, boolean loading) {
-        if (!active(settings)) return;
-        Context context = getApplicationContext();
-        AppWidgetManager manager = AppWidgetManager.getInstance(context);
-        int[] ids = manager.getAppWidgetIds(new ComponentName(context, MemitWidget.class));
-        RemoteViews views = views(context, settings, image, status, empty, loading);
-        // Full updates release the launcher's old bitmap; partial updates can accumulate image memory.
-        if (ids.length != 0) manager.updateAppWidget(ids, views);
+        new WidgetRefreshTask(getApplicationContext(), this::isStopped).run();
+        return Result.success();
     }
 
     public static RemoteViews views(Context context, AppSettings settings, Bitmap image, String status, String empty, boolean loading) {
-        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_memit);
+        RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_memit_content);
         views.setTextViewText(R.id.widget_title, "memit · " + settings.userName());
         views.setTextViewText(R.id.widget_status, status);
         views.setTextViewText(R.id.widget_empty, empty);

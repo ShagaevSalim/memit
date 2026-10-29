@@ -22,6 +22,9 @@ public final class ApiClient {
             .connectTimeout(10, TimeUnit.SECONDS).readTimeout(20, TimeUnit.SECONDS)
             .writeTimeout(25, TimeUnit.SECONDS).callTimeout(40, TimeUnit.SECONDS)
             .retryOnConnectionFailure(false).followRedirects(false).build();
+    // Component changes by WorkManager can invalidate pooled sockets. Reads are
+    // safe to retry; uploads keep retries disabled to avoid duplicate photos.
+    private static final OkHttpClient READ_HTTP = HTTP.newBuilder().retryOnConnectionFailure(true).build();
     private final AppSettings settings;
 
     public ApiClient(AppSettings settings) { this.settings = settings; }
@@ -52,7 +55,7 @@ public final class ApiClient {
     }
 
     public void health() throws IOException {
-        try (Response response = HTTP.newCall(new Request.Builder().url(settings.baseUrl.resolve("api/health")).build()).execute()) {
+        try (Response response = READ_HTTP.newCall(new Request.Builder().url(settings.baseUrl.resolve("api/health")).build()).execute()) {
             requireSuccess(response);
             try {
                 if (!"UP".equals(new JSONObject(readText(response)).optString("status"))) throw new JSONException("status");
@@ -61,7 +64,7 @@ public final class ApiClient {
     }
 
     private Photo metadata(Request request) throws IOException {
-        try (Response response = HTTP.newCall(request).execute()) {
+        try (Response response = (request.method().equals("GET") ? READ_HTTP : HTTP).newCall(request).execute()) {
             requireSuccess(response);
             try {
                 JSONObject json = new JSONObject(readText(response));
@@ -77,7 +80,7 @@ public final class ApiClient {
         HttpUrl url = settings.baseUrl.resolve(photo.imageUrl);
         if (url == null || !url.host().equals(settings.baseUrl.host()) || url.port() != settings.baseUrl.port()
                 || !url.scheme().equals(settings.baseUrl.scheme())) throw new IOException("Неверный адрес фотографии");
-        try (Response response = HTTP.newCall(new Request.Builder().url(url).build()).execute()) {
+        try (Response response = READ_HTTP.newCall(new Request.Builder().url(url).build()).execute()) {
             requireSuccess(response);
             ResponseBody body = response.body();
             if (body == null || body.contentLength() > MAX_IMAGE_BYTES) throw new IOException("Фотография слишком большая");

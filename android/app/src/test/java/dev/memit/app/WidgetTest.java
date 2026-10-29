@@ -39,11 +39,31 @@ public class WidgetTest {
     }
     private void refresh() { TestWorkerBuilder.from(context, WidgetRefreshWorker.class, executor).build().doWork(); }
 
+    @Test public void repeatedProviderUpdatesDoNotRestartCompletedOrCancelledWork() throws Exception {
+        AppWidgetManager manager = AppWidgetManager.getInstance(context);
+        int id = Shadows.shadowOf(manager).createWidget(MemitWidget.class, R.layout.widget_memit);
+        android.app.job.JobScheduler scheduler = context.getSystemService(android.app.job.JobScheduler.class);
+        assertNotNull(scheduler.getPendingJob(WidgetRefreshService.JOB_ID));
+        scheduler.cancel(WidgetRefreshService.JOB_ID);
+        new WidgetCache(context, settings).save(42, jpeg());
+        // Simulate repeated package-change callbacks, including a fresh provider instance.
+        for (int i = 0; i < 3; i++) {
+            new MemitWidget().onUpdate(context, manager, new int[]{id});
+            new MemitWidget().onAppWidgetOptionsChanged(context, manager, id, new android.os.Bundle());
+        }
+        assertNull(scheduler.getPendingJob(WidgetRefreshService.JOB_ID));
+        View restored = Shadows.shadowOf(manager).getViewFor(id);
+        assertEquals(View.VISIBLE, restored.findViewById(R.id.widget_image).getVisibility());
+        assertTrue(((TextView) restored.findViewById(R.id.widget_status)).getText().toString().contains("42"));
+        assertTrue(restored.findViewById(R.id.widget_refresh).performClick());
+        assertTrue(Shadows.shadowOf((android.app.Application) context).getBroadcastIntents().stream()
+                .anyMatch(intent -> MemitWidget.ACTION_REFRESH.equals(intent.getAction())));
+        new MemitWidget().onDeleted(context, new int[]{id});
+        new MemitWidget().onUpdate(context, manager, new int[]{id});
+        assertNotNull(scheduler.getPendingJob(WidgetRefreshService.JOB_ID));
+    }
+
     @Test public void refreshDownloadsRelativeUrlAndPreservesCacheOnFailure() throws Exception {
-        androidx.work.Configuration configuration = new androidx.work.Configuration.Builder()
-                .setExecutor(command -> { /* Work is driven explicitly below, not by the provider callback. */ })
-                .setTaskExecutor(Runnable::run).build();
-        androidx.work.testing.WorkManagerTestInitHelper.initializeTestWorkManager(context, configuration);
         int widgetId = Shadows.shadowOf(AppWidgetManager.getInstance(context)).createWidget(MemitWidget.class, R.layout.widget_memit);
         server.enqueue(new MockResponse().setBody("{\"id\":12,\"imageUrl\":\"/api/photos/12/image\"}"));
         server.enqueue(new MockResponse().setBody(new okio.Buffer().write(jpeg())).setHeader("Content-Type", "image/jpeg"));
